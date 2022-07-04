@@ -1,0 +1,48 @@
+version: '3.4'
+
+services:
+  fonedynamics_test.api:
+    container_name: api
+    image: ${DOCKER_REGISTRY-}fonedynamicstestapi
+    build:
+      context: .
+      dockerfile: Fonedynamics_Test.API/Dockerfile
+    depends_on:
+        - rabbitmq
+    networks:
+      - local
+  fonedynamics_test.console:
+    container_name: console
+    image: ${DOCKER_REGISTRY-}fonedynamicstestconsole
+    build:
+      context: .
+      dockerfile: Fonedynamics_Test.Console/Dockerfile
+    depends_on:
+      - db
+      - rabbitmq
+    stdin_open: true
+    tty: true    
+    networks:
+      - local
+  db:
+    image: "mcr.microsoft.com/mssql/server"
+    environment:
+      SA_PASSWORD: "zfC5h0uZ"
+      ACCEPT_EULA: "Y"
+    networks:
+      - local
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+      - local
+
+networks:
+  local:
+    driver: bridge

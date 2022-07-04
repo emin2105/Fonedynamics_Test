@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  fonedynamics_test.api:
+    command: '-d'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80;
+      - "ConnectionStrings__DefaultConnection=Server=db;Database=fonedynamics-test;Trusted_Connection=False;User=sa;Password=zfC5h0uZ;"
+      - "RabbitMqUrl=amqp://guest:guest@rabbitmq:5672"
+    ports:
+      - "7126:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  fonedynamics_test.console:
+    command: '-i'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings__DefaultConnection=Server=db;Database=fonedynamics-test;Trusted_Connection=False;User=sa;Password=zfC5h0uZ;"
+      - "RabbitMqUrl=amqp://guest:guest@rabbitmq:5672"
+      - "ApiUrl=http://fonedynamics_test.api:80/"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  fonedynamics_test.client:
+    image: emin2105/fonedynamics-test-client
+    depends_on:
+      - fonedynamics_test.api
+    ports:
+      - "4200:80"
+  
